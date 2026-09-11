@@ -1,4 +1,5 @@
 node_modules
+.next/
 .turbo
 dist
 .env
@@ -10,3 +11,6 @@ packages/db/prisma/src/generated
 var/
 apps/api/var/
 out/
+
+_backup_monorepo_checkpoint/
+_old_portfolio_source/
