@@ -505,7 +505,7 @@ As the **sole developer**, I:
 - Demonstrated practical skills in LLM integration, adapter-pattern architecture, API-level security enforcement, and full-stack JavaScript development
 `,
     role: 'Full-Stack Developer',
-    liveUrl: null,
+    liveUrl: 'https://query-pilot-orpin.vercel.app/',
     repoUrl: 'https://github.com/faizankhan308/QueryPilot.git',
     featured: true,
     published: true,
