@@ -45,6 +45,10 @@ export const TAGS: Record<string, ProjectTag> = {
   redux: { id: 'redux', slug: 'redux', label: 'Redux', color: '#764ABC' },
   nodemailer: { id: 'nodemailer', slug: 'nodemailer', label: 'Nodemailer', color: '#339933' },
   jwt: { id: 'jwt', slug: 'jwt', label: 'JWT Auth', color: '#d63aff' },
+  gemini: { id: 'gemini', slug: 'gemini', label: 'Gemini AI', color: '#4285F4' },
+  sqlite: { id: 'sqlite', slug: 'sqlite', label: 'SQLite', color: '#003B57' },
+  vite: { id: 'vite', slug: 'vite', label: 'Vite', color: '#646CFF' },
+  zod: { id: 'zod', slug: 'zod', label: 'Zod', color: '#3068B7' },
 }
 
 export const PROJECTS: ProjectData[] = [
@@ -388,6 +392,134 @@ As the **sole developer**, I:
         id: 'imagify-cover',
         url: '/projects/imagify-cover.png',
         alt: 'Imagify – Text to Image Generator homepage — AI-powered image generation from text prompts',
+        width: 1440,
+        height: 900,
+        displayOrder: 0,
+      },
+    ],
+  },
+  {
+    id: 'proj-4',
+    slug: 'querypilot',
+    title: 'QueryPilot',
+    tagline: 'Personal Project',
+    category: 'personal',
+    keyFeatures: [
+      'Natural-language to SQL conversion powered by Google Gemini AI',
+      'SQLite file upload & PostgreSQL connection support via adapter pattern',
+      'Automatic schema extraction — AI generates queries against real tables only',
+      'Two-layer SQL safety: prompt-level restrictions + parsed SELECT-only enforcement',
+      'Interactive query editor with AI explanation, confidence score & live results'
+    ],
+    shortDescription:
+      'An AI-powered database assistant that converts plain-English questions into safe, schema-aware SQL queries — supporting SQLite and PostgreSQL, built with React, Vite, Node.js, Express, and Google Gemini.',
+    descriptionMd: `## Overview
+
+**QueryPilot** is a full-stack AI-powered database assistant that lets users ask questions about their database in plain English and instantly receive a safe, schema-aware SQL query — plus a human-readable explanation and a confidence score.
+
+This was a **personal technical project** built to explore the intersection of LLM-based code generation, database abstraction, and API-level safety enforcement in a full-stack JavaScript application.
+
+---
+
+## Problem / Purpose
+
+Writing SQL requires knowing the exact schema — table names, column names, relationships, and syntax — before typing a single character. For common queries, this creates unnecessary friction:
+
+- Users must open a database client, manually inspect the schema, figure out the correct tables and columns, write the SQL, then execute it
+- Mistakes are common: wrong column names, missing joins, or accidentally destructive statements
+- Non-technical users are effectively locked out of their own data
+
+QueryPilot eliminates this workflow by providing a natural-language interface on top of any connected database — generating correct, schema-grounded SQL without the user ever touching the schema directly.
+
+---
+
+## What I Built
+
+A complete **full-stack web application** featuring:
+
+- **React + Vite Frontend** — Clean, responsive chat-style UI with database connection panel, auto-generated schema viewer, AI query panel, editable SQL editor, and a formatted results table
+- **Node.js + Express Backend** — REST API handling database sessions, schema extraction, AI SQL generation, and query execution
+- **Gemini AI Integration** — Schema-aware prompt pipeline using \`@google/genai\` that passes the actual database schema to Gemini alongside the user's question, preventing hallucinated table/column names
+- **Database Adapter Layer** — Pluggable adapter architecture (\`SQLiteAdapter\` / \`PostgreSQLAdapter\`) behind a shared \`DatabaseAdapter\` interface, keeping the API layer database-agnostic
+- **SQL Safety Layer** — Two independent enforcement points: prompt-level read-only instructions to Gemini, and parsed-statement validation via \`node-sql-parser\` that rejects anything other than a single \`SELECT\` before it touches the database
+
+---
+
+## Key Features
+
+- **Natural Language → SQL** — Ask "Show me the 5 highest paid employees" and receive the correct SELECT query, a plain-English explanation, and a numeric confidence score
+- **SQLite & PostgreSQL Support** — Upload a \`.sqlite\` file or provide a PostgreSQL connection URL; the adapter pattern handles the rest without any API layer changes
+- **Automatic Schema Extraction** — On connection, the backend inspects all tables and columns and feeds the live schema directly to Gemini, ensuring generated SQL only references real columns
+- **Two-Layer SQL Safety** — Gemini is instructed to generate only SELECT statements (Layer 1); every SQL string — including manually edited queries — is independently parsed and rejected if it is not a single valid SELECT (Layer 2), blocking stacked statements like \`SELECT ...; DROP TABLE ...;\`
+- **Editable Query Editor** — Users can review, manually adjust, and re-execute the generated SQL before committing to results
+- **Structured AI Responses** — Every generation returns a typed JSON response: \`{ sql, explanation, confidence }\`, surfaced cleanly in the UI
+- **Provider-Independent AI Layer** — An \`AIService\` abstraction decouples the API layer from Gemini, with a \`MockAIService\` used in tests for deterministic, quota-free test runs
+- **Request Validation** — All API inputs validated with Zod schemas before reaching business logic
+
+---
+
+## Technical Implementation & Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 19, Vite, Tailwind CSS v4 |
+| **Backend** | Node.js 22, Express 4 |
+| **AI** | Google Gemini (\`@google/genai\`, gemini-2.5-flash-lite) |
+| **Database — SQLite** | \`better-sqlite3\` |
+| **Database — PostgreSQL** | \`pg\` (node-postgres), Supabase PostgreSQL |
+| **SQL Safety** | \`node-sql-parser\` (parsed statement validation) |
+| **Validation** | Zod |
+| **File Uploads** | Multer |
+| **Testing** | Vitest, Supertest, MockAIService |
+| **Deployment** | Render (Backend) |
+
+---
+
+## My Role & Contribution
+
+As the **sole developer**, I:
+
+- Designed the full-stack architecture including the database adapter abstraction, AIService abstraction, and session management layer
+- Built the React frontend with Vite — connection panel, schema viewer, AI chat panel, editable SQL editor, and formatted results table
+- Engineered the Gemini integration with a schema-aware prompting pipeline and structured JSON response parsing
+- Implemented the two-layer SQL safety system: prompt-level constraints combined with independent \`node-sql-parser\` validation at the API boundary
+- Developed the pluggable database adapter layer supporting both SQLite and PostgreSQL without coupling to the API routes
+- Wrote automated backend tests using Vitest and Supertest, with a \`MockAIService\` for deterministic AI-generation testing without live API calls
+- Deployed the backend to Render with environment-based configuration for the Gemini API key and database credentials
+
+---
+
+## Important Challenges & Technical Decisions
+
+- **AI Hallucination Prevention**: LLMs frequently invent plausible-sounding table or column names. By extracting the actual database schema at connection time and injecting it directly into the Gemini prompt, QueryPilot grounds all generation in real schema data — the AI cannot reference columns that don't exist.
+- **Safety Independent of the LLM**: Relying only on prompt instructions to prevent destructive SQL is insufficient — a prompt can be circumvented, or a user can manually edit the query. I enforced a second, independent layer using \`node-sql-parser\` that parses every SQL string before execution and hard-rejects anything that is not a single SELECT statement, regardless of where it came from.
+- **Testable AI Layer**: Integrating a live LLM in automated tests creates flaky, quota-dependent test suites. I introduced an \`AIService\` interface with a \`MockAIService\` implementation that returns deterministic responses, allowing the full backend test suite to run without network calls or API keys.
+- **Database Abstraction**: Rather than coupling route handlers to SQLite or PostgreSQL directly, I designed a \`DatabaseAdapter\` interface so adding a new database engine only requires a new adapter class with no changes to the API layer.
+
+---
+
+## Result & Outcome
+
+- Built and deployed a fully functional AI database assistant with real safety guarantees
+- Backend live on Render at \`querypilot-hymc.onrender.com\`
+- Demonstrated practical skills in LLM integration, adapter-pattern architecture, API-level security enforcement, and full-stack JavaScript development
+`,
+    role: 'Full-Stack Developer',
+    liveUrl: null,
+    repoUrl: 'https://github.com/faizankhan308/QueryPilot.git',
+    featured: true,
+    published: true,
+    displayOrder: 3,
+    startedAt: '2025-05-01T00:00:00.000Z',
+    endedAt: '2025-07-01T00:00:00.000Z',
+    createdAt: '2025-05-01T00:00:00.000Z',
+    updatedAt: '2025-07-01T00:00:00.000Z',
+    tags: [TAGS.react, TAGS.vite, TAGS.tailwind, TAGS.node, TAGS.express, TAGS.gemini, TAGS.sqlite, TAGS.postgres, TAGS.zod],
+    images: [
+      {
+        id: 'querypilot-cover',
+        url: '/projects/querypilot-cover.png',
+        alt: 'QueryPilot — AI-powered natural language to SQL database assistant',
         width: 1440,
         height: 900,
         displayOrder: 0,
